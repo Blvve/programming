@@ -1,14 +1,16 @@
-function polycube_iterator(n, stack, attachements, f)
+function polycube_iterator(n, stack, attachments, f)
 	if length(stack) == n
 		f(stack)
 	else
-		for i in last(attachements):length(stack)
-			for next in neighbours(stack, attachements, i)
+		for i in last(attachments):length(stack)
+			# copy_stack = copy(stack)
+			# copy_attachments = copy(attachments)
+			for next in neighbours(stack, attachments, i)
 				push!(stack, next)
-				push!(attachements, i)
-				polycube_iterator(n, stack, attachements, f)
+				push!(attachments, i)
+				polycube_iterator(n, stack, attachments, f)
 				pop!(stack)
-				pop!(attachements)
+				pop!(attachments)
 			end
 		end
 	end
@@ -16,14 +18,14 @@ end
 
 polycube_iterator(n, stack, f) = polycube_iterator(n, stack, [1], f)
 
-function neighbours(stack, attachements, i)
+function neighbours(stack, attachments, i)
 	deltas = [[-1, 0, 0], [0, -1, 0], [0, 0, -1], [0, 0, 1], [0, 1, 0], [1, 0, 0]]
 	nghbrs = [j + stack[i] for j in deltas]
 
-	trunc = first(stack, i-1)
-	barc = []
-	for v in trunc, d in deltas
-		push!(barc, v+d)
+	trunk = first(stack, i-1)
+	bark = []
+	for v in trunk, d in deltas
+		push!(bark, v+d)
 	end # things that are adjacent to something before stack[i]
 
 	prev_branches = last(stack, length(stack)-i)
@@ -33,9 +35,9 @@ function neighbours(stack, attachements, i)
 	# remove forbidden neighbours
 	for j in length(nghbrs):-1:1
 		(
-		(nghbrs[j] == stack[attachements[i]]) # covered by the attachement of stack[i]
+		(nghbrs[j] == stack[attachments[i]]) # covered by the attachment of stack[i]
 		|| (nghbrs[j] <= start_after) # before root or before some other branch of stack[i]
-		|| (nghbrs[j] in barc) # these would have been attached to an earlier cube
+		|| (nghbrs[j] in bark) # these would have been attached to an earlier cube
 		) && (deleteat!(nghbrs, j))
 	end
 	return nghbrs
@@ -64,14 +66,14 @@ root = [0, 0, 0]
 stack = [root]
 total24 = 0
 function info(stack)
-	# println(stack)
-	# println(symmetries(stack))
+	println(stack)
+	println(symmetries(stack))
 	global total24 += symmetries(stack)
 	# syms = symmetries(stack)
-	# test = 1
+	# test = 3
 	# (syms == test) && (global total24 += test)
 end
 
 polycube_iterator(4, stack, info)
-# println(total24)
+println(total24)
 println(total24/24)
