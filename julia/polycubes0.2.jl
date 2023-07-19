@@ -28,14 +28,14 @@ function neighbours(stack, attachments, i)
 		push!(bark, v+d)
 	end # things that are adjacent to something before stack[i]
 
-	prev_branches = last(stack, length(stack)-i)
+	prev_branches = [stack[k] for k in findall(isequal(i), attachments)]
 
 	start_after = prev_branches != [] ? last(prev_branches) : stack[1] # cubes before this are forbidden by the choice of root or by the previous branches
 
 	# remove forbidden neighbours
 	for j in length(nghbrs):-1:1
 		(
-		(nghbrs[j] == stack[attachments[i]]) # covered by the attachment of stack[i]
+		(nghbrs[j] in stack) # covered by another cube
 		|| (nghbrs[j] <= start_after) # before root or before some other branch of stack[i]
 		|| (nghbrs[j] in bark) # these would have been attached to an earlier cube
 		) && (deleteat!(nghbrs, j))
@@ -62,18 +62,29 @@ function symmetries(stack)
 end
 
 
-root = [0, 0, 0]
-stack = [root]
-total24 = 0
 function info(stack)
-	println(stack)
-	println(symmetries(stack))
+	# println(stack)
+	# println(symmetries(stack))
+	syms = symmetries(stack)
 	global total24 += symmetries(stack)
-	# syms = symmetries(stack)
-	# test = 3
-	# (syms == test) && (global total24 += test)
+	global totalsyms[syms] +=1
+	# test = 24
+	# (syms == test) && println(stack)
 end
 
-polycube_iterator(4, stack, info)
-println(total24)
-println(total24/24)
+total24 = 0
+totalsyms = zeros(Int64, 24)
+
+for n in 11:17
+	root = [0, 0, 0]
+	stack = [root]
+	global total24 = 0
+	global totalsyms = zeros(Int64, 24)
+	polycube_iterator(n, stack, info)
+	# println("total24 = ", total24)
+	println("With $n there are a total of ", total24/24)
+	# for s in 1:24 
+	# 	println("There are $(totalsyms[s]) with $s symmetries ", totalsyms[s]*s/24)
+	# end
+end
+
