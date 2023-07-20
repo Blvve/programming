@@ -63,6 +63,7 @@ end
 function deal_with_it(stack)
 	syms = symmetries(stack)
 	Threads.atomic_add!(total24, symmetries(stack))
+	# println("Thread: ",Threads.threadid())
 end
 
 total24 = Threads.Atomic{Int}(0)
